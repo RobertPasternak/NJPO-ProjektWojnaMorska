@@ -470,14 +470,30 @@ namespace Battleship.Model
                 case SquareType.Undamaged:
                     var square = MyGrid[row][col];
                     damagedIndex = square.SquareIndex;
-                    if (_myShips[damagedIndex].FiredAt() || _myVehicles[damagedIndex].FiredAt())
+
+                    if (row<11)
                     {
-                        MineDestroyed(square.SquareIndex);
-                        isDestroyed = true;
+                        if (_myShips[damagedIndex].FiredAt())
+                        {
+                            MineDestroyed(square.SquareIndex);
+                            isDestroyed = true;
+                        }
+                        else
+                        {
+                            square.Type = SquareType.Damaged;
+                        }
                     }
                     else
                     {
+                        if (_myVehicles[damagedIndex].FiredAt())
+                        {
+                        MineDestroyed(square.SquareIndex);
+                        isDestroyed = true;
+                        }
+                        else
+                        {
                         square.Type = SquareType.Damaged;
+                        }
                     }
                     return square.Type;
                 case SquareType.Damaged:
