@@ -23,8 +23,8 @@ namespace Battleship.Model
             new Dictionary<PlaneType, int>()
             {
                 {PlaneType.Plane1, 4},
-                {PlaneType.Plane2, 5},
-                {PlaneType.Plane3, 5}
+                {PlaneType.Plane2, 4},
+                {PlaneType.Plane3, 4}
             };
 
         public Plane(PlaneType type)

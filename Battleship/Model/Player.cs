@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Windows.Controls;
@@ -64,14 +65,14 @@ namespace Battleship.Model
                   _myVehicles.Add(new Vehicle(type));
                   _enemyVehicles.Add(new Vehicle(type));
               }
-
+             
             foreach (PlaneType type in Enum.GetValues(typeof (PlaneType)))
             {
                 _myPlanes.Add(new Plane(type));
                 _enemyPlanes.Add(new Plane(type));
             }
             
-
+            
             Reset();
         }
 
@@ -86,16 +87,16 @@ namespace Battleship.Model
                 {
                     for (int j = 0; j != GRID_SIZE_X; ++j)
                     {
-                        MyGrid[i][j].Reset(SquareType.Water);
-                        EnemyGrid[i][j].Reset(SquareType.Unknown);
+                        MyGrid[i][j].Reset(SquareType.Water, SquareObject.Unknown);
+                        EnemyGrid[i][j].Reset(SquareType.Unknown, SquareObject.Unknown);
                     }
                 }
                 else
                 {
                     for (int j = 0; j != GRID_SIZE_X; ++j)
                     {
-                        MyGrid[i][j].Reset(SquareType.Grass);
-                        EnemyGrid[i][j].Reset(SquareType.Unknown);
+                        MyGrid[i][j].Reset(SquareType.Grass, SquareObject.Unknown);
+                        EnemyGrid[i][j].Reset(SquareType.Unknown, SquareObject.Unknown);
                     }
                 }
             }
@@ -326,6 +327,7 @@ namespace Battleship.Model
                 for (int row = startPosRow; remainingLength != 0; ++row)
                 {
                     MyGrid[row][startPosCol].Type = SquareType.Undamaged;
+                    MyGrid[row][startPosCol].ObjectType = SquareObject.Ship;
                     MyGrid[row][startPosCol].SquareIndex = shipIndex;
                     --remainingLength;
                 }
@@ -359,6 +361,7 @@ namespace Battleship.Model
                 for (int col = startPosCol; remainingLength != 0; ++col)
                 {
                     MyGrid[startPosRow][col].Type = SquareType.Undamaged;
+                    MyGrid[startPosRow][col].ObjectType = SquareObject.Ship;
                     MyGrid[startPosRow][col].SquareIndex = shipIndex;
                     --remainingLength;
                 }
@@ -392,6 +395,7 @@ namespace Battleship.Model
                 for (int row = startPosRow; remainingLength != 0; ++row)
                 {
                     MyGrid[row][startPosCol].Type = SquareType.Undamaged;
+                    MyGrid[row][startPosCol].ObjectType = SquareObject.Vehicle;
                     MyGrid[row][startPosCol].SquareIndex = vehicleIndex;
                     --remainingLength;
                 }
@@ -426,6 +430,7 @@ namespace Battleship.Model
                 for (int col = startPosCol; remainingLength != 0; ++col)
                 {
                     MyGrid[startPosRow][col].Type = SquareType.Undamaged;
+                    MyGrid[startPosRow][col].ObjectType = SquareObject.Vehicle;
                     MyGrid[startPosRow][col].SquareIndex = vehicleIndex;
                     --remainingLength;
                 }
@@ -450,14 +455,14 @@ namespace Battleship.Model
                     {                                               
                         if (!SquareFree(startPosRow + 1, startPosCol + 1))
                             return false;
-                        if (!CheckAdjacentSquaresForVehicles(startPosRow + 1, startPosCol + 1))
+                        if (!CheckAdjacentSquaresForPlanes(startPosRow + 1, startPosCol + 1))
                             return false;
                     }
                     else
                     {
                         if (!SquareFree(startPosRow, col))
                             return false;
-                        if (!CheckAdjacentSquaresForVehicles(startPosRow, col))
+                        if (!CheckAdjacentSquaresForPlanes(startPosRow, col))
                             return false;
                     }
                     --tmp;
@@ -472,11 +477,13 @@ namespace Battleship.Model
                     if (col > startPosCol+2)
                     {                       
                         MyGrid[startPosRow + 1][startPosCol+1].Type = SquareType.Undamaged;
+                        MyGrid[startPosRow + 1][startPosCol + 1].ObjectType = SquareObject.Plane;
                         MyGrid[startPosRow + 1][startPosCol+1].SquareIndex = planeIndex;
                     }
                     else
                     {
                         MyGrid[startPosRow][col].Type = SquareType.Undamaged;
+                        MyGrid[startPosRow][col].ObjectType = SquareObject.Plane;
                         MyGrid[startPosRow][col].SquareIndex = planeIndex;
                     }
 
@@ -576,7 +583,10 @@ namespace Battleship.Model
                 foreach (var square in row)
                 {
                     if (square.SquareIndex == i)
+                    {
                         square.Type = SquareType.Destroyed;
+                        square.ObjectType = SquareObject.Destroyed;
+                    }
                 }
             }
         }
@@ -632,7 +642,9 @@ namespace Battleship.Model
                     var square = MyGrid[row][col];
                     damagedIndex = square.SquareIndex;
 
-                        if (_myShips[damagedIndex].FiredAt() || _myVehicles[damagedIndex].FiredAt() || _myVehicles[damagedIndex].FiredAt())
+                    if (square.ObjectType == SquareObject.Ship)
+                    {
+                        if (_myShips[damagedIndex].FiredAt())
                         {
                             MineDestroyed(square.SquareIndex);
                             isDestroyed = true;
@@ -641,8 +653,35 @@ namespace Battleship.Model
                         {
                             square.Type = SquareType.Damaged;
                         }
+                    }
 
-                    
+                    if (square.ObjectType == SquareObject.Vehicle)
+                    {
+                        if (_myVehicles[damagedIndex].FiredAt())
+                        {
+                            MineDestroyed(square.SquareIndex);
+                            isDestroyed = true;
+                        }
+                        else
+                        {
+                            square.Type = SquareType.Damaged;
+                        }
+                    }
+
+                    if (square.ObjectType == SquareObject.Plane)
+                    {
+                        if (_myPlanes[damagedIndex].FiredAt())
+                        {
+                            MineDestroyed(square.SquareIndex);
+                            isDestroyed = true;
+                        }
+                        else
+                        {
+                            square.Type = SquareType.Damaged;
+                        }
+                    }
+
+
                     return square.Type;
                 case SquareType.Damaged:
                     goto default;
@@ -682,8 +721,8 @@ namespace Battleship.Model
 
                 int row = rnd.Next(GRID_SIZE_Y);
                 int col = rnd.Next(GRID_SIZE_X);
-
-                if (EnemyGrid[row][col].Type == SquareType.Unknown)
+               
+                if (EnemyGrid[row][col].Type == SquareType.Unknown && EnemyGrid[row][col].ObjectType != SquareObject.Destroyed)
                 {
                     Fire(row, col, otherPlayer);
                     takenShot = true;
