@@ -41,7 +41,7 @@ namespace Battleship.ViewModel
                 _humanPlayer.TakeTurn(square.Row, square.Col, _computerPlayer);
             }
 
-            if (_computerPlayer.NoShipsSadFace() && _computerPlayer.NoVehiclesSadFace())
+            if (_computerPlayer.NoShipsSadFace() && _computerPlayer.NoVehiclesSadFace() && _computerPlayer.NoPlanesSadFace())
             {
                 MessageBox.Show("You win!");
                 return true;
@@ -49,7 +49,7 @@ namespace Battleship.ViewModel
             else
             {
                 _computerPlayer.TakeTurn(_humanPlayer);
-                if (_humanPlayer.NoShipsSadFace() && _humanPlayer.NoVehiclesSadFace())
+                if (_humanPlayer.NoShipsSadFace() && _humanPlayer.NoVehiclesSadFace() && _humanPlayer.NoPlanesSadFace())
                 {
                     MessageBox.Show("You lose :(");
                     return true;

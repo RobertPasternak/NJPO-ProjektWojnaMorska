@@ -57,6 +57,7 @@
     </ApplicationDefinition>
     <Compile Include="Model\ComputerPlayer.cs" />
     <Compile Include="Model\HumanPlayer.cs" />
+    <Compile Include="Model\Plane.cs" />
     <Compile Include="Model\Player.cs" />
     <Compile Include="Model\SeaSquare.cs" />
     <Compile Include="Model\Ship.cs" />
