@@ -51,7 +51,7 @@ namespace Battleship.Model
                     EnemyGrid[i].Add(new SeaSquare(i, j));
                 }
             }
-
+            
             foreach (ShipType type in Enum.GetValues(typeof (ShipType)))
             {
                 _myShips.Add(new Ship(type));
@@ -63,6 +63,8 @@ namespace Battleship.Model
                 _myVehicles.Add(new Vehicle(type));
                 _enemyVehicles.Add(new Vehicle(type));
             }
+
+    
 
             foreach (PlaneType type in Enum.GetValues(typeof (PlaneType)))
             {
@@ -437,7 +439,7 @@ namespace Battleship.Model
         }
 
 
-        private bool PlacePlane(int planeIndex, int remainingLength)
+        private bool PlacePlaneUp(int planeIndex, int remainingLength)
         {
             int startPosRow = rnd.Next(GRID_SIZE_Y - remainingLength);
             int startPosCol = rnd.Next(GRID_SIZE_X_PLANES);
@@ -481,6 +483,171 @@ namespace Battleship.Model
                         MyGrid[startPosRow][col].Type = SquareType.Undamaged;
                         MyGrid[startPosRow][col].ObjectType = SquareObject.Plane;
                         MyGrid[startPosRow][col].SquareIndex = planeIndex;
+                    }
+
+                    --remainingLength;
+                }
+                return true;
+            }
+
+            return false;
+        }
+
+
+        private bool PlacePlaneDown(int planeIndex, int remainingLength)
+        {
+            int startPosRow = rnd.Next(GRID_SIZE_Y - remainingLength - 1) + 1;
+            int startPosCol = rnd.Next(GRID_SIZE_X_PLANES);
+
+            Func<bool> PlacementPossible = () =>
+            {
+                int tmp = remainingLength;
+                for (int col = startPosCol; tmp != 0; ++col)
+                {
+                    if (col > startPosCol + 2)
+                    {
+                        if (!SquareFree(startPosRow - 1, startPosCol + 1))
+                            return false;
+                        if (!CheckAdjacentSquaresForPlanes(startPosRow - 1, startPosCol + 1))
+                            return false;
+                    }
+                    else
+                    {
+                        if (!SquareFree(startPosRow, col))
+                            return false;
+                        if (!CheckAdjacentSquaresForPlanes(startPosRow, col))
+                            return false;
+                    }
+                    --tmp;
+                }
+                return true;
+            };
+
+            if (PlacementPossible())
+            {
+                for (int col = startPosCol; remainingLength != 0; ++col)
+                {
+                    if (col > startPosCol + 2)
+                    {
+                        MyGrid[startPosRow - 1][startPosCol + 1].Type = SquareType.Undamaged;
+                        MyGrid[startPosRow - 1][startPosCol + 1].ObjectType = SquareObject.Plane;
+                        MyGrid[startPosRow - 1][startPosCol + 1].SquareIndex = planeIndex;
+                    }
+                    else
+                    {
+                        MyGrid[startPosRow][col].Type = SquareType.Undamaged;
+                        MyGrid[startPosRow][col].ObjectType = SquareObject.Plane;
+                        MyGrid[startPosRow][col].SquareIndex = planeIndex;
+                    }
+
+                    --remainingLength;
+                }
+                return true;
+            }
+
+            return false;
+        }
+
+        private bool PlacePlaneRight(int planeIndex, int remainingLength)
+        {
+            int startPosRow = rnd.Next(GRID_SIZE_Y - remainingLength);
+            int startPosCol = rnd.Next(GRID_SIZE_X_PLANES) + 1;
+
+            Func<bool> PlacementPossible = () =>
+            {
+                int tmp = remainingLength;
+                for (int row = startPosRow; tmp != 0; ++row)
+                {
+                    if (row > startPosRow + 2)
+                    {
+                        if (!SquareFree(startPosRow + 1, startPosCol - 1))
+                            return false;
+                        if (!CheckAdjacentSquaresForPlanes(row, startPosCol))
+                            return false;
+                        --tmp;
+                    }
+                    else
+                    {
+                        if (!SquareFree(row, startPosCol))
+                            return false;
+                        if (!CheckAdjacentSquaresForPlanes(row, startPosCol))
+                            return false;
+                        --tmp;
+                    }
+                }
+                return true;
+            };
+
+            if (PlacementPossible())
+            {
+                for (int row = startPosRow; remainingLength != 0; ++row)
+                {
+                    if (row > startPosRow + 2)
+                    {
+                        MyGrid[startPosRow+1][startPosCol-1].Type = SquareType.Undamaged;
+                        MyGrid[startPosRow+1][startPosCol-1].ObjectType = SquareObject.Plane;
+                        MyGrid[startPosRow+1][startPosCol-1].SquareIndex = planeIndex;
+                    }
+                   else
+                    {
+                        MyGrid[row][startPosCol].Type = SquareType.Undamaged;
+                        MyGrid[row][startPosCol].ObjectType = SquareObject.Plane;
+                        MyGrid[row][startPosCol].SquareIndex = planeIndex;
+                    }
+
+                    --remainingLength;
+                }
+                return true;
+            }
+
+            return false;
+        }
+
+        private bool PlacePlaneLeft(int planeIndex, int remainingLength)
+        {
+            int startPosRow = rnd.Next(GRID_SIZE_Y - remainingLength);
+            int startPosCol = rnd.Next(GRID_SIZE_X_PLANES) + 1;
+
+            Func<bool> PlacementPossible = () =>
+            {
+                int tmp = remainingLength;
+                for (int row = startPosRow; tmp != 0; ++row)
+                {
+                    if (row > startPosRow + 2)
+                    {
+                        if (!SquareFree(startPosRow + 1, startPosCol + 1))
+                            return false;
+                        if (!CheckAdjacentSquaresForPlanes(row, startPosCol))
+                            return false;
+                        --tmp;
+                    }
+                    else
+                    {
+                        if (!SquareFree(row, startPosCol))
+                            return false;
+                        if (!CheckAdjacentSquaresForPlanes(row, startPosCol))
+                            return false;
+                        --tmp;
+                    }
+                }
+                return true;
+            };
+
+            if (PlacementPossible())
+            {
+                for (int row = startPosRow; remainingLength != 0; ++row)
+                {
+                    if (row > startPosRow + 2)
+                    {
+                        MyGrid[startPosRow + 1][startPosCol + 1].Type = SquareType.Undamaged;
+                        MyGrid[startPosRow + 1][startPosCol + 1].ObjectType = SquareObject.Plane;
+                        MyGrid[startPosRow + 1][startPosCol + 1].SquareIndex = planeIndex;
+                    }
+                    else
+                    {
+                        MyGrid[row][startPosCol].Type = SquareType.Undamaged;
+                        MyGrid[row][startPosCol].ObjectType = SquareObject.Plane;
+                        MyGrid[row][startPosCol].SquareIndex = planeIndex;
                     }
 
                     --remainingLength;
@@ -554,12 +721,22 @@ namespace Battleship.Model
             for (int i = 0; i != _myPlanes.Count && !startAgain; ++i)
             {
                 bool placed = false;
+                int direction =  rnd.Next(4);
 
                 int loopCounter = 0;
                 for (; !placed && loopCounter != 10000; ++loopCounter)
                 {
                     int remainingLength = _myPlanes[i].Length;
-                    placed = PlacePlane(i + 50, remainingLength);
+
+
+                    if(direction==0)
+                        placed = PlacePlaneUp(i + 50, remainingLength);
+                    if (direction == 1)
+                        placed = PlacePlaneDown(i + 50, remainingLength);
+                    if (direction == 2)
+                        placed = PlacePlaneLeft(i + 50, remainingLength);
+                    if (direction == 3)
+                        placed = PlacePlaneRight(i + 50, remainingLength);
                 }
 
                 if (loopCounter == 10000)
