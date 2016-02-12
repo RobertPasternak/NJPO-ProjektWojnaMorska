@@ -36,7 +36,7 @@ namespace Battleship
             _mainWindow = this;
             humanGrid.DataContext = _humanGrid;
             computerGrid.DataContext = _computerGrid;
-            UpdateTb(0,16);
+            UpdateTb(0,19);
         }
 
         public void UpdateTb(int shots, int enemyUnits)
